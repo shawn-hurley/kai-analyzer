@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log/slog"
 	"net/rpc"
 	"os"
@@ -12,8 +14,20 @@ import (
 
 func main() {
 
+	sourceDirectory := flag.String("source-directory", ".", "This will be the absolute path to the source code directory that should be analyzed")
+	rulesDirectory := flag.String("rules-directory", ".", "This will be the absolute path to the rules directory")
+
+	flag.Parse()
 	// In the future add cobra for flags maybe
 	// create log file in working directory for now.
+
+	if sourceDirectory == nil || *sourceDirectory == "" {
+		panic(fmt.Errorf("source directory must be valid"))
+	}
+
+	if rulesDirectory == nil || *rulesDirectory == "" {
+		panic(fmt.Errorf("rules directory must be valid"))
+	}
 
 	file, err := os.Create("kai-analyzer.log")
 	if err != nil {
@@ -24,8 +38,9 @@ func main() {
 	})
 
 	l := logr.FromSlogHandler(logger)
+	l.Info("Starting Analyzer", "source-dir", *sourceDirectory, "rules-dir", *rulesDirectory)
 	// We need to start up the JSON RPC server and start listening for messages
-	analyzerService, err := service.NewAnalyzer(10000, 10, 10, "/Users/shurley/repos/kai/demo-apps/coolstore", "", []string{"/Users/shurley/repos/MTA/rulesets/default/generated"}, l)
+	analyzerService, err := service.NewAnalyzer(10000, 10, 10, *sourceDirectory, "", []string{*rulesDirectory}, l)
 	if err != nil {
 		panic(err)
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/rpc"
 	"os"
@@ -21,7 +22,7 @@ func main() {
 	logger := slog.NewJSONHandler(file, nil)
 	l := logr.FromSlogHandler(logger)
 
-	cmd := exec.Command("go", "run", "main.go")
+	cmd := exec.Command("./analyzer-lsp-jsonrpc-server", "-source-directory", "/Users/shurley/repos/kai/demo-apps/coolstore", "-rules-directory", "/Users/shurley/repos/MTA/rulesets/default/generated")
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -31,6 +32,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Printf("%v", cmd.Args)
 
 	err = cmd.Start()
 	if err != nil {
